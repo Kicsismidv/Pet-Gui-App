@@ -1,0 +1,166 @@
+﻿<Window x:Class="PetGuiProject.EditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:PetGuiProject"
+        Title="Edit Your Pet ✨" Height="500" Width="850">
+
+    <Window.DataContext>
+        <local:ViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <local:BrushColorConverter x:Key="BrushConverter" />
+        <ObjectDataProvider x:Key="SpeciesValues" MethodName="GetValues" ObjectType="{x:Type local:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:Species"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="FurValues" MethodName="GetValues" ObjectType="{x:Type local:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:fur"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="ColorValues" MethodName="GetValues" ObjectType="{x:Type local:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:color"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#D895C5"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="BorderBrush" Value="#D895C5"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Template" >
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" ClipToBounds="True">
+
+                            <Rectangle x:Name="innerRectangle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="Transparent" StrokeThickness="20" Fill="{TemplateBinding Background}" RadiusX="10" RadiusY="10" />
+
+                            <ContentPresenter HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  RecognizesAccessKey="True"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                  Margin="{TemplateBinding Padding}"
+                                  />
+
+
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#FFE7F2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*" />
+
+            <ColumnDefinition Width="3*"/>
+
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="6*" />
+            <RowDefinition Height="2*" />
+        </Grid.RowDefinitions>
+
+        <!-- Left Column: Labels -->
+        <Border Grid.Column="0" Grid.Row="0" Margin="30,30,300,5" Padding="10" BorderBrush="#D895C5" BorderThickness="2" Background="#FFE7F2" CornerRadius="10" Grid.ColumnSpan="2">
+
+            <StackPanel Grid.Column="0" Margin="0,0,0,20" Grid.ColumnSpan="2">
+
+                <TextBlock Text="✨ Customize your pet ✨" FontSize="21" FontWeight="Bold" Foreground="#D895C5" Margin="0,0,0,20"/>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <Label Content="Pet's Name:" FontWeight="Bold"  Foreground="PaleVioletRed" Margin="20,0,10,5"  FontSize="20" VerticalAlignment="Center"/>
+                    <TextBox x:Name="Ptbox" Text="{Binding CurrentPet.Name, UpdateSourceTrigger=PropertyChanged}" FontSize="20" Height="40" Width="240"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock Text="Species:" FontSize="20" FontWeight="Bold"  Foreground="PaleVioletRed" Margin="20,0,10,5" HorizontalAlignment="Right"/>
+                    <ComboBox Name="speciesbox" Width="150" FontSize="16"  Margin="40,0,0,0"
+                     Background="#FFE7F2"
+                      ItemsSource="{Binding Source={StaticResource SpeciesValues}}"
+                      SelectedItem="{Binding CurrentPet.Species, Mode=TwoWay}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock Text="Fur Type:" FontSize="20" FontWeight="Bold" Foreground="PaleVioletRed" Margin="20,0,10,5" HorizontalAlignment="Right"/>
+                    <ComboBox IsEnabled="{Binding PetHasFur}"  x:Name="furbox" Width="150" FontSize="16" Margin="40,0,0,0" Background="#FFE7F2"
+                      ItemsSource="{Binding Source={StaticResource FurValues}}"
+                      SelectedItem="{Binding CurrentPet.Fur, Mode=TwoWay}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock Text="Color:" FontSize="20" FontWeight="Bold" Foreground="PaleVioletRed" Margin="20,0,10,5" HorizontalAlignment="Right"/>
+                    <ComboBox IsEnabled="{Binding PetHasColor}" x:Name="colorbox" Width="150" FontSize="16"  Background="#FFE7F2" Margin="40,0,0,0"
+                      ItemsSource="{Binding Source={StaticResource ColorValues}}"
+                      SelectedItem="{Binding CurrentPet.Color, Mode=TwoWay}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock Text="Age:" FontSize="20" FontWeight="Bold" Foreground="PaleVioletRed" Margin="20,0,0,20" HorizontalAlignment="Right"/>
+                    <Button Content="▲" Width="50" Height="50" Click="IncreaseAge_Click"/>
+                    <TextBlock Text="{Binding CurrentPet.Age}" FontSize="18" Margin="0,20,10,10"/>
+                    <Button Content="▼" Width="50"  Height="50" Click="DecreaseAge_Click"/>
+
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        <!-- Middle Column: Controls -->
+
+
+
+
+
+
+        <!-- Right Column: Summary -->
+        <Border Grid.Column="1" Grid.Row="0" Margin="30,30,23,5" Padding="10" BorderBrush="#D895C5" BorderThickness="2" Background="#FFE7F2" CornerRadius="10">
+
+            <StackPanel>
+                <TextBlock Text="✨ Pet Passport ✨" FontSize="24" FontWeight="Bold" Foreground="#D895C5" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="🐾 Name: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Name}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+
+
+
+
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="👩 Owner: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Owner.Name}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="🦄 Species: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Species}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="🌈 Color: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Color}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="🎂 Age: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Age}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Row="1" Grid.Column="0"  Orientation="Horizontal" >
+
+            <Button Content="New Owner"  FontSize ="16"  Height="60" Width="200" Click="NewPetClick" Margin="20,20,10,5" />
+
+
+            <Button Content="Passport" Height="60" Width="200" Click="SavePetClick" Margin="70,20,10,5" />
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,30,0,5">
+            <Button Content="View All Pets" Height="60" Width="200"
+            IsEnabled="{Binding CanViewAllPets}" 
+            Click="ViewAllPets_Click"/>
+        </StackPanel>
+
+    </Grid>
+</Window>
