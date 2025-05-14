@@ -1,20 +1,20 @@
-# 🐾 Pet Customization App
+#  Pet Customization App
 
 A cute and customizable WPF desktop application where users can name, design, and manage their virtual pets! Built with C# and MVVM design pattern.
 
 ---
 
-## 🎯 Features
+##  Features
 
-- 🐶 Create and customize pets (name, age, species, color, fur).
-- 📋 Maintain a list of pets owned by the user.
-- 👁️ View all pets in a separate window. --> 🔁 Double-click a pet to reload it into the editor.
-- 💾 Fully data-bound UI with layered architecture (MVVM).
+-  Create and customize pets (name, age, species, color, fur).
+-  Maintain a list of pets owned by the user.
+-  View all pets in a separate window. --> Double-click a pet to reload it into the editor.
+- Fully data-bound UI with layered architecture (MVVM).
 -- Later maybe a database for the users
 
 ---
 
-## 🧠 Technologies Used
+##  Technologies Used
 
 - C# with .NET
 - WPF (Windows Presentation Foundation)
@@ -23,7 +23,7 @@ A cute and customizable WPF desktop application where users can name, design, an
 
 ---
 
-## 🧱 Project Structure
+##  Project Structure
 
 ```plaintext
 PetCustomizationApp/
@@ -38,49 +38,69 @@ PetCustomizationApp/
 └── README.md
 ```
 
+##  Pet Customization WPF App 
 
-## 🐾 1. Model Classes
-Pet.cs
+###  1. Model Classes
 
-Represents a customizable pet with properties like:
-Name, Age: Basic info
-Species: Enum (e.g., dog, cat, goldfish)
-Fur, Color: Enums used to customize appearance
-ImagePath: Computed image path based on customization
-The Pet class implements INotifyPropertyChanged so that UI elements bound to it can update when properties change.
+#### `Pet.cs`
 
-Owner.cs
+Represents a customizable pet.
 
-Represents the pet owner:
-Name: Owner's name
-Pet: A BindingList<Pet> – the list of pets owned
-Also implements INotifyPropertyChanged for data binding.
+* **Properties**:
 
+  * `Name`, `Age`: Basic identity details.
+  * `Species`: Enum type (e.g., dog, cat, goldfish).
+  * `Fur`, `Color`: Enum types to customize the appearance.
+  * `ImagePath`: Computed string that reflects the pet’s visual representation.
+* **Implements**: `INotifyPropertyChanged` to support UI updates on property changes.
 
-## 🧠 2. ViewModel
-ViewModel.cs
+#### `Owner.cs`
 
-Main logic layer connecting the UI and models. Key responsibilities:
+Represents a pet owner.
 
-Holds instances of CurrentPet and Owner
+* **Properties**:
 
-Manages commands like AddToOwnersPet using RelayCommand
+  * `Name`: Owner’s name.
+  * `Pet`: `BindingList<Pet>` representing the pets owned.
+* **Implements**: `INotifyPropertyChanged`.
 
-Properties like CanViewAllPets enable/disable buttons conditionally
+---
 
-UpdatePetFlags() adjusts visibility (e.g., goldfish → no fur)
+###  2. ViewModel Layer
 
-update() finalizes a pet, and resets flags
+#### `ViewModel.cs`
 
-Logic ensures a new Pet is created after adding one to the owner list (deep copy) to avoid duplicate references.
+Serves as the mediator between views and models.
 
-## 🏠 3. MainWindow.xaml
+* **Properties**:
 
-This is the login/start screen where:
-User enters their name and a pet name
-A button navigates to EditWindow.xaml
-Event Handling:
-```plaintext
+  * `CurrentPet`: The currently edited pet.
+  * `Owner`: The owner and their pet list.
+  * `CanViewAllPets`: Enables "View All Pets" button when pet list has 2+ items.
+  * `PetHasFur`, `PetHasColor`: Toggles visibility depending on species.
+  * `PetIsReady`: Temporary flag for visual confirmation.
+
+* **Commands**:
+
+  * `AddToOwnersPet`: Adds a deep copy of `CurrentPet` to the owner's list and resets `CurrentPet`.
+
+* **Methods**:
+
+  * `update()`: Confirms pet settings.
+  * `UpdatePetFlags()`: Adjusts flags based on species (e.g., goldfish has no fur).
+
+---
+
+###  3. MainWindow\.xaml
+
+This is the entry screen:
+
+* User inputs their name and their pet’s name.
+* On click, navigates to `EditWindow.xaml`.
+
+#### Event Handler:
+
+```csharp
 private void SaveButton_Click(object sender, RoutedEventArgs e)
 {
     viewModel.Owner.Name = OwnerNameTextBox.Text;
@@ -89,32 +109,67 @@ private void SaveButton_Click(object sender, RoutedEventArgs e)
     editWindow.Show();
     this.Close();
 }
-
 ```
 
-## ✨ 4. EditWindow.xaml
-The main customization interface. Features:
+---
 
-Sliders or dropdowns for species, color, fur
+### 4. EditWindow\.xaml
 
-Image updates live with changes
+This is the customization screen:
 
-Button to "Add to Owner's Pets"
+* Dropdowns/sliders for species, fur, and color.
+* Image updates based on selected traits.
+* `Add to Owner's Pets` button adds a deep copy of the current pet.
+* `View All Pets` button is only enabled when pet count >= 2.
 
-Button to "View All Pets" (only enabled if 2+ pets exist)
+#### View All Pets Button:
 
-```
+```xml
 <Button Content="View All Pets"
         IsEnabled="{Binding CanViewAllPets}"
-        Click="ViewAllPets_Click"/>
-
+        Click="ViewAllPets_Click" />
 ```
 
-```
+#### Event Handler:
+
+```csharp
 private void ViewAllPets_Click(object sender, RoutedEventArgs e)
 {
     var ownerWindow = new OwnerPetWindow(viewModel);
     ownerWindow.Show();
 }
-
 ```
+
+---
+
+###  5. OwnerPetWindow\.xaml
+
+Displays the list of owned pets:
+
+* Shows `Name`, `Species`, and a small image.
+* **Double-click** on an item sets it as the current pet.
+
+#### Event Handler:
+
+```csharp
+private void PetListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+{
+    if (PetListBox.SelectedItem is Pet selectedPet)
+    {
+        viewModel.CurrentPet = selectedPet;
+        this.Close();
+    }
+}
+```
+
+---
+
+###  6. PassportWindow\.xaml *(Optional)*
+
+If included, this window can display full pet info as a "passport". Could be used for documentation, printing, or detailed view per pet.
+
+---
+
+This document outlines how all parts of the project relate and interact, based on MVVM principles and clean layering. The solution is scalable and testable, with a separation of data, UI, and logic.
+
+
