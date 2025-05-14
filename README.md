@@ -164,12 +164,11 @@ private void PetListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
 
 ---
 
-###  6. PassportWindow\.xaml *(Optional)*
+###  6. PassportWindow\.xaml 
 
 If included, this window can display full pet info as a "passport". Could be used for documentation, printing, or detailed view per pet.
 
 ---
 
-This document outlines how all parts of the project relate and interact, based on MVVM principles and clean layering. The solution is scalable and testable, with a separation of data, UI, and logic.
 
 
