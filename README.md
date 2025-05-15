@@ -2,6 +2,12 @@
 
 A cute and customizable WPF desktop application where users can name, design, and manage their virtual pets! Built with C# and MVVM design pattern.
 
+![Welcome](https://github.com/user-attachments/assets/b1c0fde2-322a-4654-a387-c3345bf78d2a)
+![EditThelma](https://github.com/user-attachments/assets/5a2deaa4-d18b-4be9-ad16-f178c2d50409)
+![ThelmasPassport](https://github.com/user-attachments/assets/6e7911a1-1c90-456f-92f1-7023658e8671)
+![Pets](https://github.com/user-attachments/assets/12de9c7b-0ce0-4520-b26a-a619d17e1c75)
+
+
 ---
 
 ##  Features
@@ -159,7 +165,27 @@ Represents a pet owner.
   * `Name`: Owner’s name.
   * `Pet`: `BindingList<Pet>` representing the pets owned.
 * **Implements**: `INotifyPropertyChanged`.
+```csharp
+  public class Owner : INotifyPropertyChanged
+  {
+      private string name { get; set; }
+      public string Name { get { return name; } set { name = value;  OnPropertyChanged(); } }    
+      private BindingList<Pet> pet { get; set; }
+      public BindingList<Pet> Pet{ get { return pet; } set { pet = value; OnPropertyChanged(); } }
+      public Owner()
+      { 
+          Name = string.Empty;
+          Pet = new BindingList<Pet>();
+      }
+      private void OnPropertyChanged([CallerMemberName] string propetyName = "")
+      {
+          this.PropertyChanged?
+              .Invoke(this, new PropertyChangedEventArgs(propetyName));
+      }
 
+      public event PropertyChangedEventHandler? PropertyChanged;
+  }
+```
 ---
 
 ###  2. ViewModel Layer
