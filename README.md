@@ -594,7 +594,7 @@ The same style settings need to be done the same way as in the `MainWindow`.
             </StackPanel>
         </Border>
         
-        <!-- Right Column: Summary -->
+        <!-- Right Column: Summary . Here is a copy with the previously setted datas-->
         <Border Grid.Column="1" Grid.Row="0" Margin="30,30,23,5" Padding="10" BorderBrush="#D895C5" BorderThickness="2" Background="#FFE7F2" CornerRadius="10">
 
             <StackPanel>
@@ -604,11 +604,7 @@ The same style settings need to be done the same way as in the `MainWindow`.
                     <TextBlock Text="🐾 Name: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
                     <TextBlock Text="{Binding CurrentPet.Name}" Foreground="PaleVioletRed" FontSize="18"/>
                 </StackPanel>
-
-
-
-
-                <StackPanel Orientation="Horizontal" Margin="0">
+      <StackPanel Orientation="Horizontal" Margin="0">
                     <TextBlock Text="👩 Owner: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
                     <TextBlock Text="{Binding Owner.Name}" Foreground="PaleVioletRed" FontSize="18"/>
                 </StackPanel>
@@ -630,13 +626,14 @@ The same style settings need to be done the same way as in the `MainWindow`.
         </Border>
 
         <StackPanel Grid.Row="1" Grid.Column="0"  Orientation="Horizontal" >
-
+<!--- This button leads back to the `MainWindow` --->
             <Button Content="New Owner"  FontSize ="16"  Height="60" Width="200" Click="NewPetClick" Margin="20,20,10,5" />
 
-
+<!---This button leads to the `PassportWindow`, where the pet can be saved. --->
             <Button Content="Passport" Height="60" Width="200" Click="SavePetClick" Margin="70,20,10,5" />
         </StackPanel>
         <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,30,0,5">
+<!--- This button leads to the`OwnersListWindow`, but only if the list has at least two element. As it setted in the `ViewModel` with "CanViewAllPets".--->
             <Button Content="View All Pets" Height="60" Width="200"
             IsEnabled="{Binding CanViewAllPets}" 
             Click="ViewAllPets_Click"/>
@@ -647,29 +644,18 @@ The same style settings need to be done the same way as in the `MainWindow`.
 ```
 ---
 
-###  5. OwnerPetWindow\.xaml
+###  5. PassportWindow\.xaml
 
-Displays the list of owned pets:
+In this window there is a summary of the current pets and picture. 
+ * Save button - adds the current pet to the owner's list.
+ * Exit button - leads us back to the `EditWindow`
+ * Picture - loaded from the Pets folder
+ * Summary - the pet's values
 
-* Shows `Name`, `Species`, and a small image.
-* **Double-click** on an item sets it as the current pet.
-
-#### Event Handler:
-
-```csharp
-private void PetListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-{
-    if (PetListBox.SelectedItem is Pet selectedPet)
-    {
-        viewModel.CurrentPet = selectedPet;
-        this.Close();
-    }
-}
-```
 
 ---
 
-###  6. PassportWindow\.xaml 
+###  6. OwnersPetsWindow\.xaml 
 
 
 
