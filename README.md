@@ -447,15 +447,15 @@ The xaml itself is not enough, so we need a  MainWindow.xaml.cs
 
      private void SaveButton_Click(object sender, RoutedEventArgs e)
      {
-      // The `SaveClick` is explaind here. Its bindig the setted name then update 
+      // The `SaveClick` is explaind here. Its bindig the setted name then update its value.
          this.Otbox
              .GetBindingExpression(TextBox.TextProperty)
              .UpdateSource();
         
-       
+       //Here the ViewModel is given to the next window, than open it.
          
          EditWindow editWindow = new EditWindow(vm)
-         {
+         { 
              DataContext = vm
          };
          editWindow.Show();
@@ -472,27 +472,179 @@ This is the customization screen:
 
 * Dropdowns/sliders for species, fur, and color.
 * Image updates based on selected traits.
-* `Add to Owner's Pets` button adds a deep copy of the current pet.
+* `Passport` button is lead us to the `PassportWindow`.
 * `View All Pets` button is only enabled when pet count >= 2.
+*  `New Owner` button  takes us back to the `MainWindow`.
 
-#### View All Pets Button:
+```xaml
+<!--- It gets the same Datacontext as the previous window--->
+    <Window.DataContext>
+        <local:ViewModel />
+    </Window.DataContext>
 
-```xml
-<Button Content="View All Pets"
-        IsEnabled="{Binding CanViewAllPets}"
-        Click="ViewAllPets_Click" />
+    <Window.Resources>
+        <local:BrushColorConverter x:Key="BrushConverter" />
+<!--- Since the Pet's properties change here, inclueding the fur,species, and color.
+ Which are Enum types, so its needs some help with the casting.
+ `EnumHelper` is a utility class (static class with one purpose)
+with a methode that takes an Enum and returns its values as an Array. --->
+        <ObjectDataProvider x:Key="SpeciesValues" MethodName="GetValues" ObjectType="{x:Type local:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:Species"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="FurValues" MethodName="GetValues" ObjectType="{x:Type local:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:fur"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="ColorValues" MethodName="GetValues" ObjectType="{x:Type local:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:color"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+<!---
+The same style settings is need to be done the same way as in the `MainWindow`.
+--->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#D895C5"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="BorderBrush" Value="#D895C5"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Template" >
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" ClipToBounds="True">
+
+                            <Rectangle x:Name="innerRectangle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="Transparent" StrokeThickness="20" Fill="{TemplateBinding Background}" RadiusX="10" RadiusY="10" />
+
+                            <ContentPresenter HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  RecognizesAccessKey="True"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                  Margin="{TemplateBinding Padding}"
+                                  />
+
+
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#FFE7F2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*" />
+
+            <ColumnDefinition Width="3*"/>
+
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="6*" />
+            <RowDefinition Height="2*" />
+        </Grid.RowDefinitions>
+
+        <!-- Left Column: Labels, Here the owner is able to change the values of the pet (name, species, fur, color,age).-->
+        <Border Grid.Column="0" Grid.Row="0" Margin="30,30,300,5" Padding="10" BorderBrush="#D895C5" BorderThickness="2" Background="#FFE7F2" CornerRadius="10" Grid.ColumnSpan="2">
+
+            <StackPanel Grid.Column="0" Margin="0,0,0,20" Grid.ColumnSpan="2">
+
+                <TextBlock Text="✨ Customize your pet ✨" FontSize="21" FontWeight="Bold" Foreground="#D895C5" Margin="0,0,0,20"/>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <Label Content="Pet's Name:" FontWeight="Bold"  Foreground="PaleVioletRed" Margin="20,0,10,5"  FontSize="20" VerticalAlignment="Center"/>
+                    <TextBox x:Name="Ptbox" Text="{Binding CurrentPet.Name, UpdateSourceTrigger=PropertyChanged}" FontSize="20" Height="40" Width="240"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock Text="Species:" FontSize="20" FontWeight="Bold"  Foreground="PaleVioletRed" Margin="20,0,10,5" HorizontalAlignment="Right"/>
+                    <ComboBox Name="speciesbox" Width="150" FontSize="16"  Margin="40,0,0,0"
+                     Background="#FFE7F2"
+                      ItemsSource="{Binding Source={StaticResource SpeciesValues}}"
+                      SelectedItem="{Binding CurrentPet.Species, Mode=TwoWay}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock Text="Fur Type:" FontSize="20" FontWeight="Bold" Foreground="PaleVioletRed" Margin="20,0,10,5" HorizontalAlignment="Right"/>
+                   <!--- The Combobox is unable if the `species` is setted to Goldfish,
+                   because of the `PetHasFur` that we setted in the `ViewModel` class. --->
+                    <ComboBox IsEnabled="{Binding PetHasFur}"  x:Name="furbox" Width="150" FontSize="16" Margin="40,0,0,0" Background="#FFE7F2"
+                      ItemsSource="{Binding Source={StaticResource FurValues}}"
+                      SelectedItem="{Binding CurrentPet.Fur, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock Text="Color:" FontSize="20" FontWeight="Bold" Foreground="PaleVioletRed" Margin="20,0,10,5" HorizontalAlignment="Right"/>
+                     <!--- Similar thing is happening here as with the previous Combobox.
+                       This time with the `color` and the `PetHasColor`. --->
+                    <ComboBox IsEnabled="{Binding PetHasColor}" x:Name="colorbox" Width="150" FontSize="16"  Background="#FFE7F2" Margin="40,0,0,0"
+                      ItemsSource="{Binding Source={StaticResource ColorValues}}"
+                      SelectedItem="{Binding CurrentPet.Color, Mode=TwoWay}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock Text="Age:" FontSize="20" FontWeight="Bold" Foreground="PaleVioletRed" Margin="20,0,0,20" HorizontalAlignment="Right"/>
+                    <Button Content="▲" Width="50" Height="50" Click="IncreaseAge_Click"/>
+                    <TextBlock Text="{Binding CurrentPet.Age}" FontSize="18" Margin="0,20,10,10"/>
+                    <Button Content="▼" Width="50"  Height="50" Click="DecreaseAge_Click"/>
+
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
+        <!-- Right Column: Summary -->
+        <Border Grid.Column="1" Grid.Row="0" Margin="30,30,23,5" Padding="10" BorderBrush="#D895C5" BorderThickness="2" Background="#FFE7F2" CornerRadius="10">
+
+            <StackPanel>
+                <TextBlock Text="✨ Pet Passport ✨" FontSize="24" FontWeight="Bold" Foreground="#D895C5" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="🐾 Name: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Name}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+
+
+
+
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="👩 Owner: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Owner.Name}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="🦄 Species: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Species}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="🌈 Color: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Color}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="🎂 Age: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Age}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Row="1" Grid.Column="0"  Orientation="Horizontal" >
+
+            <Button Content="New Owner"  FontSize ="16"  Height="60" Width="200" Click="NewPetClick" Margin="20,20,10,5" />
+
+
+            <Button Content="Passport" Height="60" Width="200" Click="SavePetClick" Margin="70,20,10,5" />
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,30,0,5">
+            <Button Content="View All Pets" Height="60" Width="200"
+            IsEnabled="{Binding CanViewAllPets}" 
+            Click="ViewAllPets_Click"/>
+        </StackPanel>
+
+    </Grid>
+</Window>
 ```
-
-#### Event Handler:
-
-```csharp
-private void ViewAllPets_Click(object sender, RoutedEventArgs e)
-{
-    var ownerWindow = new OwnerPetWindow(viewModel);
-    ownerWindow.Show();
-}
-```
-
 ---
 
 ###  5. OwnerPetWindow\.xaml
@@ -519,7 +671,7 @@ private void PetListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
 
 ###  6. PassportWindow\.xaml 
 
-If included, this window can display full pet info as a "passport". Could be used for documentation, printing, or detailed view per pet.
+
 
 ---
 
