@@ -484,8 +484,8 @@ This is the customization screen:
 
     <Window.Resources>
         <local:BrushColorConverter x:Key="BrushConverter" />
-<!--- Since the Pet's properties change here, inclueding the fur,species, and color.
- Which are Enum types, so its needs some help with the casting.
+<!--- Since the Pet's properties change here, including the fur,species, and color.
+ Which are Enum types, so it needs some help with the casting.
  `EnumHelper` is a utility class (static class with one purpose)
 with a methode that takes an Enum and returns its values as an Array. --->
         <ObjectDataProvider x:Key="SpeciesValues" MethodName="GetValues" ObjectType="{x:Type local:EnumHelper}">
@@ -504,7 +504,7 @@ with a methode that takes an Enum and returns its values as an Array. --->
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
 <!---
-The same style settings is need to be done the same way as in the `MainWindow`.
+The same style settings need to be done the same way as in the `MainWindow`.
 --->
         <Style TargetType="Button">
             <Setter Property="Background" Value="#D895C5"/>
@@ -569,7 +569,7 @@ The same style settings is need to be done the same way as in the `MainWindow`.
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                     <TextBlock Text="Fur Type:" FontSize="20" FontWeight="Bold" Foreground="PaleVioletRed" Margin="20,0,10,5" HorizontalAlignment="Right"/>
-                   <!--- The Combobox is unable if the `species` is setted to Goldfish,
+                   <!--- The Combobox is unabled if the `species` is setted to Goldfish,
                    because of the `PetHasFur` that we setted in the `ViewModel` class. --->
                     <ComboBox IsEnabled="{Binding PetHasFur}"  x:Name="furbox" Width="150" FontSize="16" Margin="40,0,0,0" Background="#FFE7F2"
                       ItemsSource="{Binding Source={StaticResource FurValues}}"
