@@ -44,7 +44,7 @@ PetCustomizationApp/
 
 #### `Pet.cs`
 
-Represents a customizable pet.
+Represents a customizable pet. 
 
 * **Properties**:
 
@@ -53,6 +53,102 @@ Represents a customizable pet.
   * `Fur`, `Color`: Enum types to customize the appearance.
   * `ImagePath`: Computed string that reflects the pet’s visual representation.
 * **Implements**: `INotifyPropertyChanged` to support UI updates on property changes.
+```csharp
+public class Pet : INotifyPropertyChanged
+{
+    public string ImagePath { get; set; }
+    private string name { get; set; }
+    public string Name { get => name;  set { name = value; OnPropertyChanged(); } }    
+    private Owner owner;
+    private Species specie;
+    public Species Species { get => specie;  set { specie = value; OnPropertyChanged(); } }
+    private color color;
+    public color Color { get => color; set { color = value; OnPropertyChanged(); } }
+    private fur fur;
+    public fur Fur { get => fur;        set { fur = value; OnPropertyChanged(); } }
+    private int age { get; set; }
+    public int Age { get => age; set { age = value; OnPropertyChanged(); } }
+    public Pet()
+    { 
+        Name = string.Empty;
+        ImagePath = "Pets\\Bunny\\Basic\\Black.png";
+
+
+
+
+    }
+    private string GetImageUri(string relativePath)
+    {
+        var fullPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
+        return new Uri(fullPath).AbsoluteUri;
+    }
+    public void UpdateImagePath()
+    {
+        switch (Species)
+        {
+            case Species.bunny:
+                switch (Fur)
+                {
+                    case fur.basic:
+                        ImagePath = GetImageUri($"Pets/Bunny/Basic/{Color}.png");
+                        break;
+                    case fur.extrapuffy:
+                        ImagePath = GetImageUri($"Pets/Bunny/Fluffy/{Color}.png");
+                        break;
+                    case fur.spotted:
+                        ImagePath = GetImageUri($"Pets/Bunny/Spotted/{Color}.png");
+                        break;
+                }
+                break;
+
+            case Species.chick:
+                switch (Fur)
+                {
+                    case fur.basic:
+                        ImagePath = GetImageUri("Pets/Chicken/Basic.png");
+                        break;
+                    case fur.extrapuffy:
+                        ImagePath = GetImageUri("Pets/Chicken/Fluffy.png");
+                        break;
+                    case fur.spotted:
+                        ImagePath = GetImageUri("Pets/Chicken/Spotted.png");
+                        break;
+                }
+                break;
+
+            case Species.goldfish:
+                ImagePath = GetImageUri($"Pets/Goldfish/{Color}.png");
+                break;
+
+           
+                
+            case Species.guineapig:
+                switch (Fur)
+                {
+                    case fur.basic:
+                        ImagePath = GetImageUri($"Pets/Guineapig/Basic/{Color}.png");
+                        break;
+                    case fur.extrapuffy:
+                        ImagePath = GetImageUri($"Pets/Guineapig/Fluffy/{Color}.png");
+                        break;
+                    case fur.spotted:
+                        ImagePath = GetImageUri($"Pets/Guineapig/Spotted/{Color}.png");
+                        break;
+                }
+                break;
+          ;
+        }
+
+        OnPropertyChanged(nameof(ImagePath));
+    }
+    private void OnPropertyChanged([CallerMemberName] string propetyName = "")
+    {
+        this.PropertyChanged?
+            .Invoke(this, new PropertyChangedEventArgs(propetyName));
+    }
+    public event PropertyChangedEventHandler? PropertyChanged;
+}
+```
 
 #### `Owner.cs`
 
