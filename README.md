@@ -16,7 +16,7 @@ A cute and customizable WPF desktop application where users can name, design, an
 -  Maintain a list of pets owned by the user.
 -  View all pets in a separate window. --> Double-click a pet to reload it into the editor.
 - Fully data-bound UI with layered architecture (MVVM).
--- Later maybe a database for the users
+-- Later maybe a database for the owners.
 
 ---
 
@@ -40,7 +40,7 @@ PetCustomizationApp/
 ├── PetGuiProject.Models/    # Domain models (Pet, Owner, Enums)
 ├── PetGuiProject.Tests/     # (optional) for unit tests
 ├── PetGuiProject.sln  # Solution file
-├── {PetGuiProject.Data/  # Later a database - not exitsing yet}
+├── {PetGuiProject.Data/  # Later a database - not existing yet}
 └── README.md
 ```
 
@@ -88,6 +88,10 @@ public class Pet : INotifyPropertyChanged
         var fullPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
         return new Uri(fullPath).AbsoluteUri;
     }
+/*
+Since the imagepath depends on the current condition of the pets' properties
+ it is necessary to be set in each possibility.*/
+
     public void UpdateImagePath()
     {
         switch (Species)
@@ -199,7 +203,7 @@ Serves as the mediator between views and models.
   * `CurrentPet`: The currently edited pet.
   * `Owner`: The owner and their pet list.
   * `CanViewAllPets`: Enables "View All Pets" button when pet list has 2+ items.
-  * `PetHasFur`, `PetHasColor`: Toggles visibility depending on species.
+  * `PetHasFur`, `PetHasColor`: Toggles visibility depending on species. Goldfish specie inable to set fur type, and Chick specie inable to set color.
   * `PetIsReady`: Temporary flag for visual confirmation.
 
 * **Commands**:
@@ -211,6 +215,135 @@ Serves as the mediator between views and models.
   * `update()`: Confirms pet settings.
   * `UpdatePetFlags()`: Adjusts flags based on species (e.g., goldfish has no fur).
 
+```csharp
+
+ public class ViewModel : INotifyPropertyChanged
+ {
+     public IRelayCommand AddToOwnersPet { get; set; }
+     public event PropertyChangedEventHandler? PropertyChanged;
+
+/* The following booleans has to be setted each time
+when we change a pet's properties, so these need to updated
+ with `OnPropertyChanged();` */.
+
+
+     private bool canViewAllPets;
+     public bool CanViewAllPets
+     {
+         get => canViewAllPets;
+         set
+         {
+             if (canViewAllPets != value)
+             {
+                 canViewAllPets = value;
+                 OnPropertyChanged();
+             }
+         }
+     }
+    private bool petHasFur = true;
+     public bool PetHasFur
+     {
+         get => petHasFur;
+         set
+         {
+             if (petHasFur != value)
+             {
+                 petHasFur = value;
+                 OnPropertyChanged(nameof(PetHasFur));
+              
+             }
+         }
+     }
+     private bool petHasColor = true;
+     public bool PetHasColor
+     {
+         get => petHasColor;
+         set
+         {
+             if (petHasColor != value)
+             {
+                 petHasColor = value;
+                 OnPropertyChanged(nameof(PetHasColor));
+             }
+         }
+     }
+
+
+     private Pet currentPet;
+     public Pet CurrentPet
+     {
+         get => currentPet;
+         set { currentPet = value; OnPropertyChanged(); }
+     }
+     public Owner Owner { get; set; }
+
+ 
+
+
+
+     public ViewModel()
+     {
+         CurrentPet = new Pet();
+         Owner = new Owner();
+         CanViewAllPets = false;
+
+
+  /* This  event subscription listens to changes in the properties of the CurrentPet object
+     specifically when its Species changes
+and then reacts by calling a method called UpdatePetFlags().. Which is used to update `PetHasFur` and `PetHasColor`bool values.
+*/
+         CurrentPet.PropertyChanged += (s, e) =>
+         {
+             if (e.PropertyName == nameof(CurrentPet.Species))
+             {
+                 UpdatePetFlags();
+             }
+         };
+        
+         PetIsReady = false;
+         PetHasFur = true;
+         PetHasColor = true;
+     AddToOwnersPet = new RelayCommand(
+            () =>
+            {
+                var petCopy = new Pet
+                {
+                    Name = CurrentPet.Name,
+                    Age = CurrentPet.Age,
+                    Species = CurrentPet.Species,
+                    Fur = CurrentPet.Fur,
+                    Color = CurrentPet.Color
+                };
+                petCopy.UpdateImagePath();
+               
+                Owner.Pet.Add(petCopy);
+
+/*Since  the owner's list updated here
+the `CanViewAllPets` also setted here.*/
+
+                if (Owner.Pet.Count >= 2)
+                {
+                    CanViewAllPets = true;
+                }
+                MessageBox.Show($" {petCopy.Name} added to Owner's list");
+            },
+            () => CurrentPet != null   
+        );
+         
+     }
+  
+
+     private void UpdatePetFlags()
+     {
+         PetHasFur = CurrentPet.Species != Species.goldfish;
+         PetHasColor = CurrentPet.Species != Species.chick;
+     }
+
+     protected void OnPropertyChanged([CallerMemberName] string name = "")
+         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+ }
+```
 ---
 
 ###  3. MainWindow\.xaml
