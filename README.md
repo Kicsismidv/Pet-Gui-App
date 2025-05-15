@@ -350,20 +350,118 @@ the `CanViewAllPets` also setted here.*/
 
 This is the entry screen:
 
-* User inputs their name and their pet’s name.
+* User inputs their name .
 * On click, navigates to `EditWindow.xaml`.
 
 #### Event Handler:
 
+```xaml
+ <!--- First, I set the DataContext to an instance of the ViewModel so I can access its properties and commands in XAML. --- >
+    <Window.DataContext>
+        <local:ViewModel />
+    </Window.DataContext>
+ <!--- Then, I set the style for these items, so i don't have to do this everywhere and also that way its more uniform --- >
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#D895C5"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+        </Style>
+
+        <Style TargetType="Label">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="Foreground" Value="#D36DA8"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="20"/>
+            <Setter Property="Background" Value="#FAD0E9"/>
+            <Setter Property="BorderBrush" Value="#D895C5"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="2" 
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Border CornerRadius="20" Background="#FFE7F2" BorderBrush="#D895C5" BorderThickness="2" Padding="30" Margin="20">
+            <StackPanel >
+                
+                <TextBlock Text="👩 Owner Info" FontSize="26" FontWeight="Bold" Foreground="#D36DA8" 
+                   TextAlignment="Center" Margin="0,0,0,20"/>
+
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Label Content="💌 Owner's Name:" VerticalAlignment="Center"/>
+                    <TextBox x:Name="Otbox" Text="{Binding Owner.Name, UpdateSourceTrigger=PropertyChanged}" Height="50" Width="240"/>
+                </StackPanel>
+                <Button Content="💾 Save" Click="SaveButton_Click" Height="50" Width="120"
+                HorizontalAlignment="Center" Background="#FAD0E9" BorderBrush="#D895C5" BorderThickness="2"
+                FontSize="18" />
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</Window>
+```
+
+The xaml itself is not enough, so we need a  MainWindow.xaml.cs 
 ```csharp
-private void SaveButton_Click(object sender, RoutedEventArgs e)
-{
-    viewModel.Owner.Name = OwnerNameTextBox.Text;
-    viewModel.CurrentPet.Name = PetNameTextBox.Text;
-    var editWindow = new EditWindow(viewModel);
-    editWindow.Show();
-    this.Close();
-}
+ public partial class MainWindow : Window
+ {
+   // It need its own ViewModel to have access to the properties.
+     private ViewModel vm;
+     public MainWindow()
+     {
+         InitializeComponent();
+        // The datacontext is setted here
+         if (this.DataContext is ViewModel vm)
+         {
+             this.vm = vm;
+         }
+         else
+         {
+             this.vm = new ViewModel();
+             this.DataContext = this.vm;
+         }
+        
+        
+         
+     }
+
+     private void SaveButton_Click(object sender, RoutedEventArgs e)
+     {
+      // The `SaveClick` is explaind here. Its bindig the setted name then update 
+         this.Otbox
+             .GetBindingExpression(TextBox.TextProperty)
+             .UpdateSource();
+        
+       
+         
+         EditWindow editWindow = new EditWindow(vm)
+         {
+             DataContext = vm
+         };
+         editWindow.Show();
+         this.Close();
+     }
+ }
 ```
 
 ---
