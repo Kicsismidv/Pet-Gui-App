@@ -651,13 +651,213 @@ In this window there is a summary of the current pets and picture.
  * Exit button - leads us back to the `EditWindow`
  * Picture - loaded from the Pets folder
  * Summary - the pet's values
+``` xaml
+    <Window.DataContext>
+        <local:ViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#e9c6d5"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="BorderBrush" Value="#D895C5"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" ClipToBounds="True">
+                            <Rectangle Fill="{TemplateBinding Background}" RadiusX="10" RadiusY="10"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="4*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Cute Save Button -->
+        <StackPanel Grid.Row="0" Grid.Column="0" Margin="30,20,20,20">
+            <Button Command="{Binding AddToOwnersPet}" Content="💾 Save Passport" 
+                Width="150" Height="50" Margin="20"
+                HorizontalAlignment="Left"/>
+        </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="1" Margin="90,20,20,20">
+            <Button Content="-- Exit --" 
+        Width="150" Height="50" Margin="20"
+        HorizontalAlignment="Left" Click="ExitClick"/>
+        </StackPanel>
+        <!-- Pet Image -->
+        <Border Grid.Row="1" Grid.Column="1" Margin="10" BorderBrush="#D895C5"  BorderThickness="2" Width="300" CornerRadius="10">
+            
+                <Image Source="{Binding CurrentPet.ImagePath}" Stretch="UniformToFill"  />
+        </Border>
+
+        <!-- Pet Passport Card -->
+        <Border Grid.Row="1" Grid.Column="0"  Margin="40"
+                Background="#FFE7F2" BorderBrush="#D895C5" BorderThickness="2" CornerRadius="15" Padding="20" Width="300">
+            <StackPanel>
+                <TextBlock Text="✨ Pet Passport ✨" FontSize="24" FontWeight="Bold" Foreground="#D895C5" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="🐾 Name: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Name}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="🎂 Age: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Age}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="👩 Owner: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Owner.Name}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="🦄 Species: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Species}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0">
+                    <TextBlock Text="🌈 Color: " FontSize="18" Foreground="PaleVioletRed" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding CurrentPet.Color}" Foreground="PaleVioletRed" FontSize="18"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
 
 
+```
+``` csharp
+ public partial class PassportWindow : Window
+ {
+     ViewModel vm;
+     public PassportWindow(ViewModel vm)
+     {
+         InitializeComponent();
+         this.vm = vm;
+     }
+
+     private void ExitClick(object sender, RoutedEventArgs e)
+     {
+         this.Close();
+     }
+ }
+
+```
 ---
 
 ###  6. OwnersPetsWindow\.xaml 
 
+``` xaml
+    <Window.Resources>
+        <local:BrushColorConverter x:Key="BrushConverter" />
+        <ObjectDataProvider x:Key="SpeciesValues" MethodName="GetValues" ObjectType="{x:Type local:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:Species"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="FurValues" MethodName="GetValues" ObjectType="{x:Type local:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:fur"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="ColorValues" MethodName="GetValues" ObjectType="{x:Type local:EnumHelper}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:color"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#D895C5"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="BorderBrush" Value="#D895C5"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Template" >
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" ClipToBounds="True">
 
+                            <Rectangle x:Name="innerRectangle" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stroke="Transparent" StrokeThickness="20" Fill="{TemplateBinding Background}" RadiusX="10" RadiusY="10" />
+
+                            <ContentPresenter HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  RecognizesAccessKey="True"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                  Margin="{TemplateBinding Padding}"
+                                  />
+
+
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#FFE7F2">
+        <ListBox Name = "PetItem" ItemsSource="{Binding Owner.Pet}" Margin="10" MouseDoubleClick="ShowThePetClick">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="#D895C5" BorderThickness="2" CornerRadius="10" Margin="10" Padding="10" Background="White">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Image Source="{Binding ImagePath}" Width="60" Height="60" Margin="0,0,10,0"/>
+                            <StackPanel  >
+                                <TextBlock Text="{Binding Name}" FontSize="18" FontWeight="Bold" Foreground="PaleVioletRed"/>
+                                <TextBlock Text="{Binding Species}" FontSize="16" Foreground="#D895C5"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</Window>
+
+
+```
+``` csharp
+ public partial class OwnerPetsWindow : Window
+ {
+     ViewModel vm;
+     public OwnerPetsWindow(ViewModel wm)
+     {
+         InitializeComponent();
+         vm = wm;
+     }
+
+     private void ShowThePetClick(object sender, MouseButtonEventArgs e)
+     {
+
+         if (sender is ListBox listBox && listBox.SelectedItem is Pet selectedPet)
+         {
+             // Set selected pet as current in the shared ViewModel
+             vm.CurrentPet = selectedPet;
+             vm.Owner.Pet.Remove(selectedPet);
+             this.Close(); 
+         }
+
+
+     }
+ }
+```
 
 ---
 
